@@ -2,13 +2,20 @@ package com.wang.sci.modules.sys.entity;
 
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import com.google.common.collect.Lists;
 import com.wang.sci.common.persistence.IdEntity;
 
+
 public class Role extends IdEntity<Role> {
 
+	private static final long serialVersionUID = 1L;
 	private String name;
 	private String dataScope;
 	

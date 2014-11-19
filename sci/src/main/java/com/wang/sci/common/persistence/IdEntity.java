@@ -2,6 +2,8 @@ package com.wang.sci.common.persistence;
 
 import java.io.Serializable;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 
@@ -18,9 +20,11 @@ public abstract class IdEntity<T> implements Serializable{
 	@PrePersist
 	public void prePesist(){
 		//super.prePesist();
-		this.id = "0";
+		//this.id = "0";
 	}
 
+	@Id
+	@GeneratedValue
 	public String getId() {
 		return id;
 	}
