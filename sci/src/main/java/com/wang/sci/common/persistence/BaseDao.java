@@ -15,11 +15,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wang.sci.common.utils.Reflections;
 
 public class BaseDao<T> {
 	
+	@Autowired
 	private SessionFactory sessionFactory;
 	private Class<?> entityClass;
 	

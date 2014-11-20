@@ -1,1 +1,5 @@
-1.DAO层的测试流程
+1.BASEDAO层的测试流程
+1，在test目录下创建User UserDao
+2，改写beans.xml内容
+
+DBUnit 来保证每次数据都是干净的数据
