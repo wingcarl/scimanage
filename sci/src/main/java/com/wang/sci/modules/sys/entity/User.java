@@ -10,6 +10,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -153,6 +154,7 @@ public class User extends IdEntity<User>{
 		this.roleLists = roleLists;
 	}
 	
+	@Transient
 	public List<String> getRoleIdList(){
 		List<String> roleIdList = Lists.newArrayList();
 		for(Role role : roleLists){
@@ -169,6 +171,8 @@ public class User extends IdEntity<User>{
 			roleLists.add(role);
 		}
 	}
+	
+	@Transient
 	public String getRoleNames() {
 		return Collections3.extractToString(roleLists, "name", ",")	;
 	}
