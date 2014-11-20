@@ -7,8 +7,10 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 
+import com.wang.sci.common.utils.IdGen;
+
 @MappedSuperclass
-public abstract class IdEntity<T> implements Serializable{
+public abstract class IdEntity<T> extends DataEntity<T> implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	protected String id;
@@ -19,8 +21,8 @@ public abstract class IdEntity<T> implements Serializable{
 	
 	@PrePersist
 	public void prePesist(){
-		//super.prePesist();
-		//this.id = "0";
+		super.prePesist();
+		this.id = IdGen.uuid();
 	}
 
 	@Id

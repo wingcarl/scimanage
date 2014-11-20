@@ -1,10 +1,17 @@
 package com.wang.sci.common.persistence;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -49,6 +56,92 @@ public class BaseDao<T> {
 	@SuppressWarnings("unchecked")
 	public T get(Serializable id){
 		return (T)getSession().get(entityClass, id);
+	}
+	
+	public T getByHql(String qlString){
+		return this.getByHql(qlString, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public T getByHql(String qlString,Parameter parameter){
+		Query query = createQuery(qlString,parameter);
+		return (T)query.uniqueResult();
+	}
+	/**
+	 * 反射的机制的应用先提取所有的方法
+	 * 并依次判断该方法是否属于某个注解下，若属于@ID注解下，则通过method.invoke获取该ID
+	 * 判断id是否赋值，若未赋值则执行Prepersist给ID赋值，若赋值则执行PreUpdate，更新ID值
+	 * @param entity
+	 */
+	public void save(T entity){
+		try {
+		Object id = null;
+		for(Method method : entity.getClass().getMethods()){
+			Id idAnn = method.getAnnotation(Id.class);
+			if(idAnn != null){
+					id = method.invoke(entity);
+					break;
+			}
+		}
+		//插入前执行方法
+		if(StringUtils.isBlank((String)id)){
+			for(Method method : entity.getClass().getMethods()){
+				PrePersist pp = method.getAnnotation(PrePersist.class);
+				if(pp != null){
+					method.invoke(entity);
+					break;
+				}
+			}
+		}
+		//更新前执行方法
+		else{
+			for (Method method : entity.getClass().getMethods()){
+				PreUpdate pu = method.getAnnotation(PreUpdate.class);
+				if(pu != null){
+					method.invoke(entity);
+					break;
+				}
+			}
+		}
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			getSession().saveOrUpdate(entity);
+		}
+	
+	/**
+	 * 保存实体列表，传入多个实体
+	 * @param entityList
+	 */
+	public void save(List<T> entityList){
+		for(T entity : entityList){
+			save(entity);
+		}
+	}
+	
+	public int update(String qlString,Parameter parameter){
+		return createQuery(qlString,parameter).executeUpdate();
+	}
+	
+	public int update(String qlString){
+		return this.update(qlString,null);
+	}
+	
+	public int deleteById(Serializable id){
+		return update("update "+entityClass.getSimpleName()+" set delFlag='" + BaseEntity.DEL_FLAG_DELETE +"' where id = :p1",
+				new Parameter(id));
+	}
+	
+	public int updateDelFlag(Serializable id, String delFlag){
+		return update("update "+entityClass.getSimpleName()+" set delFlag=:p2 where id=:p1",
+				new Parameter(id,delFlag));
 	}
 	public Query createQuery(String qlString, Parameter parameter){
 		Query query = getSession().createQuery(qlString);
